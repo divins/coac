@@ -6,6 +6,8 @@ Capybara.default_wait_time = 1
 
 class Parser
   include Capybara::DSL
+  NEXTPAGE = ['.paginalink u', {text: 'Següent'}]
+  GOBACK = ['input[name="tornar"]']
 
   attr_accessor :url, :results
 
@@ -17,9 +19,9 @@ class Parser
   def parse
     visit url
 
-    while(nextpage = page.find('.paginalink u', text: 'Següent'))
+    while(page.has_selector?(*NEXTPAGE))
       read_list
-      nextpage.click
+      find(*NEXTPAGE).click
     end
   end
 
@@ -29,7 +31,7 @@ class Parser
     count.times do |time|
       page.all('.item_list')[time].click
       read_architect
-      find('input[name="tornar"]').click
+      find(*GOBACK).click
     end
   end
 
@@ -43,7 +45,7 @@ class Parser
   end
 
   def find_field(selector)
-    return nil unless has_css?(selector)
+    return nil unless has_selector?(selector)
 
     first(selector).text
   end
